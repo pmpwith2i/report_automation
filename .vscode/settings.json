@@ -1,0 +1,7 @@
+{
+  "eslint.workingDirectories": ["packages", "packages/aws-cdk", "services/cucumber-format-lambda", "services/persistence-lambda", "packages/lambda-logger"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": ["typescript"]
+}

@@ -1,0 +1,46 @@
+{
+  "execution": {
+    "timestamp": "ISO_8601",
+    "environment": "string"      
+  },
+  "epics": [                     
+    {
+      "id": "string",            
+      "supersede": "string"      
+    }
+  ],
+  "stories": [                   
+    {
+      "id": "string",            
+      "supersede": "string"      
+    }
+  ],
+  "tests": [                     
+    {
+      "id": "string",            
+      "supersede": "string"      
+    }
+  ],
+  "bugs": [                      
+    "string"
+  ],
+  "results": [                   
+    {
+      "epic": "string",          
+      "story": "string",         
+      "test": "string",          
+      "bugs": [
+        "string"                 
+      ],
+      "result": "boolean",       
+      "failure": {               
+        "step": "string",        
+        "stacktrace": "string",  
+        "screenshot": {          
+          "data": "string",      
+          "mime_type": "string"  
+        }
+      }
+    }
+  ]
+}

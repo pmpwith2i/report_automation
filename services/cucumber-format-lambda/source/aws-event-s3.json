@@ -1,0 +1,48 @@
+{
+    "awsRequestId": "2789770a-ec45-4a85-9e66-a6e1e85bcc8a",
+    "x-correlation-trace-id": "Root=1-63761a20-73499fa1035f5f1439f1abdc;Parent=7d0caf657b2994f5;Sampled=0",
+    "x-correlation-id": "2789770a-ec45-4a85-9e66-a6e1e85bcc8a",
+    "level": 30,
+    "time": 1668684384537,
+    "pid": 8,
+    "hostname": "169.254.101.169",
+    "event": {
+        "Records": [
+            {
+                "eventVersion": "2.1",
+                "eventSource": "aws:s3",
+                "awsRegion": "us-east-1",
+                "eventTime": "2022-11-17T11:25:19.292Z",
+                "eventName": "ObjectCreated:Put",
+                "userIdentity": {
+                    "principalId": "A1DFROFP0UWY7R"
+                },
+                "requestParameters": {
+                    "sourceIPAddress": "185.59.135.155"
+                },
+                "responseElements": {
+                    "x-amz-request-id": "JZVE8FP51XM2EEA9",
+                    "x-amz-id-2": "EpvcXO8SFTnl9rnuMJSXwJw7VqEAKyGn+V34HSmS9P8jjxXu4zKRo838O85jzIZ9bkAdxpGRk+kqPtto5/ulZbwCa2Ovmly3e3FkZ6W4EuA="
+                },
+                "s3": {
+                    "s3SchemaVersion": "1.0",
+                    "configurationId": "NWQ5OWI4YzAtYWJmYi00YzFlLTljOTktY2FmNjI1ZDgxZDhl",
+                    "bucket": {
+                        "name": "report-poc-bucket",
+                        "ownerIdentity": {
+                            "principalId": "A1DFROFP0UWY7R"
+                        },
+                        "arn": "arn:aws:s3:::report-poc-bucket"
+                    },
+                    "object": {
+                        "key": "cucumber/cucumberreport.json",
+                        "size": 220245,
+                        "eTag": "0941293d321c4c85cb61794d44e309b3",
+                        "sequencer": "0063761A1F2C76785F"
+                    }
+                }
+            }
+        ]
+    },
+    "msg": "Received event"
+}

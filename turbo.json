@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "outputs": ["dist/**"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test": {},
+    "dev": {
+      "cache": false
+    },
+    "deploy": {
+      "cache": false
+    }
+  },
+  "globalDependencies": [".env"],
+  "globalEnv": [
+    "CDK_AWS_ACCOUNT_ID",
+    "CDK_AWS_REGION",
+    "CDK_VPC_ID",
+    "CDK_STORAGE_CUCUMBER_PREFIX",
+    "DB_HOST",
+    "DB_PORT",
+    "DB_USERNAME",
+    "DB_PASSWORD",
+    "DB_NAME"
+  ]
+}

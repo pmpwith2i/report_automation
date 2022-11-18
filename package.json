@@ -1,0 +1,29 @@
+{
+  "name": "automation-poc",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "deploy": "turbo run deploy --filter=@packages/aws-cdk",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "@packages/eslint-config-custom": "*",
+    "@types/mysql": "^2.15.21",
+    "esbuild": "^0.15.14",
+    "prettier": "latest",
+    "tsconfig-paths": "^4.1.0",
+    "turbo": "latest"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "packageManager": "npm@8.19.1"
+}
