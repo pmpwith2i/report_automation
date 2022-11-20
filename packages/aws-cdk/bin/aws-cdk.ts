@@ -20,4 +20,4 @@ const props: QaReportStackProps = {
     dbName: process.env.DB_NAME ?? '',
 };
 
-new QAReportPocStack(app, 'QAReportPocStack', props);
+new QAReportPocStack(app, 'QaReportAutomaticStack', props);

@@ -1,13 +1,14 @@
 import * as cdk from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
-import { SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { Port, SecurityGroup, Vpc } from 'aws-cdk-lib/aws-ec2';
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
-import { S3EventSource, SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Bucket, EventType } from 'aws-cdk-lib/aws-s3';
 import { Queue } from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 import { QaReportStackProps } from '../interfaces/stack';
+import * as s3n from 'aws-cdk-lib/aws-s3-notifications';
 
 export class QAReportPocStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: QaReportStackProps) {
@@ -15,24 +16,16 @@ export class QAReportPocStack extends cdk.Stack {
 
         const vpc = Vpc.fromLookup(this, 'QaReportVPC', { vpcId: props?.vpcId });
 
-        const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, 'dbSecutiryGroup', 'sg-055bb47a2d144363b');
-        const reportBucket = new Bucket(this, 'ReportBucket', {
-            bucketName: 'qa-federico-report-poc-bucket',
-            publicReadAccess: true,
+        const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, 'dbSeecurityGroup', 'sg-055bb47a2d144363b');
+        const persistenceLambdaSecurityGroup = new SecurityGroup(this, 'PersistenceLambdaSecurityGroup', {
+            vpc,
         });
+
+        const reportBucket = Bucket.fromBucketName(this, 'ReportBucket', 'qa-federico-report-poc-bucket');
 
         const qaReportQueue = new Queue(this, 'QAReportPocQueue', {
             visibilityTimeout: Duration.seconds(30), // default,
             receiveMessageWaitTime: Duration.seconds(20), // default
-        });
-
-        const s3PutEventSource = new S3EventSource(reportBucket, {
-            events: [EventType.OBJECT_CREATED_PUT],
-            filters: [
-                {
-                    prefix: props?.cucumberPrefix,
-                },
-            ],
         });
 
         const sqsEventSource = new SqsEventSource(qaReportQueue, {
@@ -47,15 +40,14 @@ export class QAReportPocStack extends cdk.Stack {
                 SNS_QUEUE_URL: qaReportQueue.queueUrl,
             },
             vpc,
-            events: [s3PutEventSource],
         });
 
-        const persistenceLambda = new NodejsFunction(this, 'report-persistence-handler', {
+        new NodejsFunction(this, 'report-persistence-handler', {
             entry: '../../services/persistence-lambda/src/index.ts',
             runtime: Runtime.NODEJS_16_X,
             architecture: Architecture.ARM_64,
             vpc,
-            securityGroups: [dbSecurityGroup],
+            securityGroups: [persistenceLambdaSecurityGroup],
             environment: {
                 DB_HOST: props?.dbHost,
                 DB_PORT: props?.dbPort,
@@ -63,9 +55,13 @@ export class QAReportPocStack extends cdk.Stack {
                 DB_PASSWORD: props?.dbPassword,
                 DB_NAME: props?.dbName,
             },
+            timeout: Duration.seconds(30),
             events: [sqsEventSource],
         });
 
+        dbSecurityGroup.addIngressRule(persistenceLambdaSecurityGroup, Port.tcp(parseInt(props.dbPort)), 'Lambda to Postgres database');
+
         qaReportQueue.grantSendMessages(cucumberFormatLambda);
+        reportBucket.addEventNotification(EventType.OBJECT_CREATED, new s3n.LambdaDestination(cucumberFormatLambda));
     }
 }

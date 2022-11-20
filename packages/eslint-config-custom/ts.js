@@ -22,6 +22,8 @@ module.exports = {
 			"endOfLine": "auto"
 		}],
 		"camelcase": 0,
+		"@typescript-eslint/no-unused-vars": "error",
+		"@typescript-eslint/no-useless-constructor": "error",
 		"@typescript-eslint/camelcase": "off",
 		"@typescript-eslint/no-unsafe-call": "off",
 		"@typescript-eslint/no-unsafe-return": "off",

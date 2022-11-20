@@ -6,4 +6,5 @@
     "baseUrl": "./src",
   },
   "include": ["./**/*.ts"],
+  "exclude": ["cdk.out"]
 }
