@@ -33,6 +33,7 @@ export const handler = async (event: S3Event, context: Context): Promise<boolean
         const finalReport = formatCucumberReport(cucumberReport);
 
         lambdaLogger.info('Report formatted', { finalReport });
+
         lambdaLogger.info(`Sendind message to queue -> ${SNS_QUEUE_URL}`);
 
         const params: SendMessageRequest = {

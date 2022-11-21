@@ -4,6 +4,8 @@ import { Context, SQSEvent } from 'aws-lambda';
 import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME } from './constants';
 import mysql from 'mysql';
 import { persistToDb } from 'strategy';
+import { ValidationError } from 'utils';
+import { validateReport } from 'validation';
 
 export const connPool = mysql.createPool({
     host: DB_HOST,
@@ -20,14 +22,21 @@ export const handler = async (event: SQSEvent, context: Context) => {
 
         lambdaLogger.info('Received event', { event });
 
-        const res = await persistToDb();
+        for (const record of event.Records) {
+            const report = validateReport(record);
+            await persistToDb(report);
+        }
 
-        lambdaLogger.info('Response from db', { res });
+        lambdaLogger.info('Records persisted to DB');
 
         return true;
     } catch (error: unknown) {
-        lambdaLogger.error('Error', { error });
+        if (error instanceof ValidationError) {
+            lambdaLogger.error('Validation error', { error });
+            return false;
+        }
 
+        lambdaLogger.error('Error', { error });
         return false;
     }
 };
