@@ -23,7 +23,7 @@ export const handler = async (event: SQSEvent, context: Context) => {
         lambdaLogger.info('Received event', { event });
 
         for (const record of event.Records) {
-            const report = validateReport(record);
+            const report = validateReport(JSON.parse(record.body ?? {}));
             await persistToDb(report);
         }
 

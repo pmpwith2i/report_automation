@@ -63,5 +63,6 @@ export class QAReportPocStack extends cdk.Stack {
 
         qaReportQueue.grantSendMessages(cucumberFormatLambda);
         reportBucket.addEventNotification(EventType.OBJECT_CREATED, new s3n.LambdaDestination(cucumberFormatLambda));
+        reportBucket.grantRead(cucumberFormatLambda);
     }
 }

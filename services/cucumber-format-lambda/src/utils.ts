@@ -1,21 +1,23 @@
-import { CucumberReport, FinalReport, FinalReportElement, FinalReportResult } from 'interface';
+import { CucumberReport, FinalReport, FinalReportElement, FinalReportResult, StoryReportElement, TestReportElement } from 'interface';
 export class ValidationError extends Error {}
 
 const getResults = (obj: CucumberReport) => {
     const results: FinalReportResult[] = [];
     obj.elements.forEach((element) => {
-        const epic: FinalReportElement = { id: '', supersede: '' };
+        const epic: FinalReportElement = { id: 'AUT_FIRST_EPIC', supersede: '' };
 
         const testTag = element.tags.find((tag) => tag?.name?.startsWith('@TEST'));
         const storyTag = element.tags.find((tag) => tag?.name?.startsWith('@REQ'));
         if (testTag && storyTag) {
-            const test: FinalReportElement = {
-                id: testTag?.name ?? '',
+            const story: StoryReportElement = {
+                epicId: epic.id,
+                id: storyTag?.name ?? '',
                 supersede: '',
             };
 
-            const story: FinalReportElement = {
-                id: storyTag?.name ?? '',
+            const test: TestReportElement = {
+                id: testTag?.name ?? '',
+                storyId: story.id,
                 supersede: '',
             };
 

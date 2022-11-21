@@ -22,8 +22,8 @@ export interface CucumberReport {
 
 export interface FinalReportResult {
     epic: FinalReportElement;
-    story: FinalReportElement;
-    test: FinalReportElement;
+    story: StoryReportElement;
+    test: TestReportElement;
     result: boolean;
     failure?: {
         step: string;
@@ -36,13 +36,16 @@ export interface FinalReportElement {
     supersede: string;
 }
 
+export type TestReportElement = FinalReportElement & { storyId: string };
+export type StoryReportElement = FinalReportElement & { epicId: string };
+
 export interface FinalReport {
     execution: {
         timestamp: string;
         environment: string;
     };
     epics: FinalReportElement[];
-    stories: FinalReportElement[];
-    tests: FinalReportElement[];
+    stories: StoryReportElement[];
+    tests: TestReportElement[];
     results: FinalReportResult[];
 }

@@ -20,7 +20,7 @@ export interface Report {
         environment: string;
     };
     epics: ReportElement[];
-    stories: ReportElement[];
-    tests: ReportElement[];
+    stories: (ReportElement & { epicId: string })[];
+    tests: (ReportElement & { storyId: string })[];
     results: ReportResult[];
 }
