@@ -15,14 +15,14 @@ const ReportResultSchema = Joi.object({
     result: Joi.boolean().required(),
     failure: Joi.object({
         step: Joi.string().required(),
-        stacktrace: Joi.string().required(),
+        stacktrace: Joi.string(),
     }).allow(null),
 });
 
-const ReportSchema = Joi.object({
+const ReportSchema = Joi.array().items({
     execution: Joi.object({
-        timestamp: Joi.string().required(),
-        environment: Joi.string().required(),
+        timestamp: Joi.string(),
+        environment: Joi.string(),
     }).required(),
     epics: Joi.array().items(ReportElementSchema).required(),
     stories: Joi.array().items(ReportElementSchema).required(),
@@ -30,12 +30,12 @@ const ReportSchema = Joi.object({
     results: Joi.array().items(ReportResultSchema).required(),
 });
 
-export const validateReport = (obj: unknown): Report => {
+export const validateReport = (obj: unknown): Report[] => {
     lambdaLogger.info('Validating report', { obj });
     const { error, value } = ReportSchema.validate(obj, { allowUnknown: true });
 
     if (error) {
-        lambdaLogger.debug('Error validating report', { error });
+        lambdaLogger.error('Error validating report', { error });
         throw new ValidationError('Error validating report');
     }
 

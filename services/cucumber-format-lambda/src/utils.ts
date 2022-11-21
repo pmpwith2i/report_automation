@@ -4,7 +4,7 @@ export class ValidationError extends Error {}
 const getResults = (obj: CucumberReport) => {
     const results: FinalReportResult[] = [];
     obj.elements.forEach((element) => {
-        const epic: FinalReportElement = { id: 'AUT_FIRST_EPIC', supersede: '' };
+        const epic: FinalReportElement = { id: 'AUT_FIRST_EPIC', supersede: 'Fake supersede' };
 
         const testTag = element.tags.find((tag) => tag?.name?.startsWith('@TEST'));
         const storyTag = element.tags.find((tag) => tag?.name?.startsWith('@REQ'));
@@ -12,13 +12,13 @@ const getResults = (obj: CucumberReport) => {
             const story: StoryReportElement = {
                 epicId: epic.id,
                 id: storyTag?.name ?? '',
-                supersede: '',
+                supersede: 'Fake supersede',
             };
 
             const test: TestReportElement = {
                 id: testTag?.name ?? '',
                 storyId: story.id,
-                supersede: '',
+                supersede: 'Fake supersede',
             };
 
             const failedStep = element.steps.find((step) => step.result.status === 'failed');
@@ -31,7 +31,7 @@ const getResults = (obj: CucumberReport) => {
                 ...(failedStep && {
                     failure: {
                         step: failedStep.name,
-                        stacktrace: '',
+                        stacktrace: 'TBD---TBD',
                     },
                 }),
             });
@@ -50,8 +50,8 @@ export const formatCucumberReport = (reports: CucumberReport[]): FinalReport[] =
 
         return {
             execution: {
-                timestamp: '',
-                environment: '',
+                timestamp: new Date().toISOString(),
+                environment: 'DEV',
             },
             epics,
             stories,

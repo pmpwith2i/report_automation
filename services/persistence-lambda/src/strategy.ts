@@ -2,30 +2,21 @@ import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
 import { connPool } from 'index';
 import { Report } from 'interface';
 import { PoolConnection } from 'mysql';
-import { DatabaseError } from 'utils';
+import { DatabaseError, execQueryPromise } from 'utils';
 
 const persistEpics = (report: Report, connection: PoolConnection) => {
-    const insertEpicsSql = 'INSERT INTO epics (id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return new Promise((resolve, reject) => {
-        connection.query(insertEpicsSql, [report.epics.map((epic) => [epic.id, epic.supersede])], (err) => {
-            if (err) {
-                lambdaLogger.error('Error inserting epics', { err });
-                return reject(new DatabaseError('Error inserting epics'));
-            }
-        });
-    });
+    const insertEpicsSql = 'INSERT INTO epic (id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
+    return execQueryPromise(connection, insertEpicsSql, [report.epics.map((epic) => [epic.id, epic.supersede])]);
 };
 
 const persistStories = (report: Report, connection: PoolConnection) => {
-    const insertStoriesSql = 'INSERT INTO stories (id, epic_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return new Promise((resolve, reject) => {
-        connection.query(insertStoriesSql, [report.stories.map((story) => [story.id, story.epicId, story.supersede])], (err) => {
-            if (err) {
-                lambdaLogger.error('Error inserting stories', { err });
-                return reject(new DatabaseError('Error inserting stories'));
-            }
-        });
-    });
+    const insertStoriesSql = 'INSERT INTO story (id, epic_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
+    return execQueryPromise(connection, insertStoriesSql, [report.stories.map((story) => [story.id, story.epicId, story.supersede])]);
+};
+
+const persistTests = (report: Report, connection: PoolConnection) => {
+    const insertTestsSql = 'INSERT INTO test (id, story_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
+    return execQueryPromise(connection, insertTestsSql, [report.tests.map((test) => [test.id, test.storyId, test.supersede])]);
 };
 
 export const persistToDb = (report: Report) => {
@@ -42,7 +33,7 @@ export const persistToDb = (report: Report) => {
                     return reject(new DatabaseError('Error starting transaction'));
                 }
 
-                Promise.all([persistEpics(report, connection), persistStories(report, connection)])
+                Promise.all([persistEpics(report, connection), persistStories(report, connection), persistTests(report, connection)])
                     .then(() => {
                         connection.commit((err) => {
                             if (err) {

@@ -23,20 +23,18 @@ export const handler = async (event: SQSEvent, context: Context) => {
         lambdaLogger.info('Received event', { event });
 
         for (const record of event.Records) {
-            const report = validateReport(JSON.parse(record.body ?? {}));
-            await persistToDb(report);
+            const reports = validateReport(JSON.parse(record.body ?? {}));
+            for (const report of reports) await persistToDb(report);
         }
 
         lambdaLogger.info('Records persisted to DB');
-
-        return true;
     } catch (error: unknown) {
         if (error instanceof ValidationError) {
-            lambdaLogger.error('Validation error', { error });
+            lambdaLogger.error('Validation error', { message: error.message });
             return false;
         }
 
         lambdaLogger.error('Error', { error });
-        return false;
     }
+    return true;
 };
