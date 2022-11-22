@@ -26,7 +26,6 @@ export class QAReportPocStack extends cdk.Stack {
         const qaReportQueue = new Queue(this, 'QAReportPocQueue', {
             visibilityTimeout: Duration.seconds(30), // default,
             receiveMessageWaitTime: Duration.seconds(20), // default
-            retentionPeriod: Duration.seconds(30),
         });
 
         const sqsEventSource = new SqsEventSource(qaReportQueue, {

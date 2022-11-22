@@ -15,19 +15,20 @@ export const connPool = mysql.createPool({
     port: parseInt(DB_PORT),
 });
 
-export const handler = async (event: SQSEvent, context: Context): Promise<boolean> => {
+export const handler = async (event: SQSEvent, context: Context): Promise<any> => {
     try {
         withRequest(event, context);
 
         lambdaLogger.info('Received records', { recordsNumber: event.Records.length });
 
         for (const record of event.Records) {
+            record.receiptHandle;
             const reportExecution = validateReport(JSON.parse(record.body ?? {}));
             await persistReportToDb(reportExecution);
         }
 
         lambdaLogger.info('Records persisted to DB');
-        return true;
+        return { statusCode: 200 };
     } catch (error: unknown) {
         if (error instanceof Joi.ValidationError) {
             lambdaLogger.error('Validation error', { error });

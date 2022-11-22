@@ -6,13 +6,13 @@ import { DatabaseError, execQueryPromise } from 'utils';
 
 const persistEnvironment = (report: ReportExecution, connection: PoolConnection) => {
     const { environment } = report.execution;
-    const insertEnvironmentSql = `INSERT INTO environments (id) VALUES (?) `;
+    const insertEnvironmentSql = `INSERT INTO environments (id) VALUES (?) ON DUPLICATE KEY UPDATE id = VALUES(id)`;
     return execQueryPromise(connection, insertEnvironmentSql, [[environment]]);
 };
 
 const persistExecution = (report: ReportExecution, connection: PoolConnection) => {
     const { timestamp, environment } = report.execution;
-    const insertExecutionSql = `INSERT INTO executions (timestamp, env_id) VALUES (?)`;
+    const insertExecutionSql = `INSERT INTO executions (timestamp, env_id) VALUES (?) ON DUPLICATE KEY UPDATE env_id = VALUES(env_id)`;
     return execQueryPromise(connection, insertExecutionSql, [[timestamp, environment]]);
 };
 
@@ -34,7 +34,8 @@ const persistTests = (report: ReportExecution, connection: PoolConnection) => {
 };
 
 const persistResults = (report: ReportExecution, connection: PoolConnection) => {
-    const insertExecutionsSql = 'INSERT INTO executions_results (execution_id, test_id, result, step, stacktrace, screenshot) VALUES ?';
+    const insertExecutionsSql =
+        'INSERT INTO executions_results (execution_id, test_id, result, step, stacktrace, screenshot) VALUES ? ON DUPLICATE KEY UPDATE result = VALUES(result), step = VALUES(step), stacktrace = VALUES(stacktrace), screenshot = VALUES(screenshot)';
     const results = [
         report.features
             .map((feature) =>
