@@ -1,32 +1,59 @@
 import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
 import { connPool } from 'index';
-import { Report } from 'interface';
+import { ReportExecution } from 'interface';
 import { PoolConnection } from 'mysql';
 import { DatabaseError, execQueryPromise } from 'utils';
 
-const persistEpics = (report: Report, connection: PoolConnection) => {
-    const insertEpicsSql = 'INSERT INTO epic (id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return execQueryPromise(connection, insertEpicsSql, [report.results.map((result) => [result.epic.id, result.epic.supersede])]);
+const persistEnvironment = (report: ReportExecution, connection: PoolConnection) => {
+    const { environment } = report.execution;
+    const insertEnvironmentSql = `INSERT INTO environments (id) VALUES (?) `;
+    return execQueryPromise(connection, insertEnvironmentSql, [[environment]]);
 };
 
-const persistStories = (report: Report, connection: PoolConnection) => {
-    const insertStoriesSql = 'INSERT INTO story (id, epic_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return execQueryPromise(connection, insertStoriesSql, [report.results.map((result) => [result.story.id, result.epic.id, result.story.supersede])]);
+const persistExecution = (report: ReportExecution, connection: PoolConnection) => {
+    const { timestamp, environment } = report.execution;
+    const insertExecutionSql = `INSERT INTO executions (timestamp, env_id) VALUES (?)`;
+    return execQueryPromise(connection, insertExecutionSql, [[timestamp, environment]]);
 };
 
-const persistTests = (report: Report, connection: PoolConnection) => {
-    const insertTestsSql = 'INSERT INTO test (id, story_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return execQueryPromise(connection, insertTestsSql, [report.results.map((result) => [result.test.id, result.story.id, result.test.supersede])]);
+const persistEpics = (report: ReportExecution, connection: PoolConnection) => {
+    const insertEpicsSql = 'INSERT INTO epics (id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
+    return execQueryPromise(connection, insertEpicsSql, [report.features.map((feature) => [feature.epic.id, feature.epic.supersede])]);
 };
 
-const persistResults = (report: Report, connection: PoolConnection) => {
-    const insertExecutionsSql = 'INSERT INTO execution (id, timestamp, environment result, test_id) VALUES ?';
-    return execQueryPromise(connection, insertExecutionsSql, [
-        report.results.map((result) => [result.execution.id, result.execution.timestamp, result.execution.environment, result.result, result.test.id]),
+const persistStories = (report: ReportExecution, connection: PoolConnection) => {
+    const insertStoriesSql = 'INSERT INTO stories (id, epic_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
+    return execQueryPromise(connection, insertStoriesSql, [report.features.map((feature) => [feature.story.id, feature.epic.id, feature.story.supersede])]);
+};
+
+const persistTests = (report: ReportExecution, connection: PoolConnection) => {
+    const insertTestsSql = 'INSERT INTO tests (id, story_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
+    return execQueryPromise(connection, insertTestsSql, [
+        report.features.map((feature) => feature.tests.map((test) => [test.id, feature.story.id, test.supersede])).flat(),
     ]);
 };
 
-export const persistToDb = (report: Report) => {
+const persistResults = (report: ReportExecution, connection: PoolConnection) => {
+    const insertExecutionsSql = 'INSERT INTO executions_results (execution_id, test_id, result, step, stacktrace, screenshot) VALUES ?';
+    const results = [
+        report.features
+            .map((feature) =>
+                feature.results.map((result) => [
+                    `${report.execution.environment}_${report.execution.timestamp}`,
+                    result.test.id,
+                    result.status,
+                    result.failure?.step,
+                    result.failure?.stacktrace,
+                    result.failure?.screenshot,
+                ]),
+            )
+            .flat(),
+    ];
+    lambdaLogger.info('Persisting results', { results });
+    return execQueryPromise(connection, insertExecutionsSql, results);
+};
+
+export const persistReportToDb = (report: ReportExecution) => {
     return new Promise((resolve: (value: unknown) => void, reject: (obj: unknown) => void) => {
         connPool.getConnection((err, connection) => {
             if (err) {
@@ -41,6 +68,8 @@ export const persistToDb = (report: Report) => {
                 }
 
                 Promise.all([
+                    persistEnvironment(report, connection),
+                    persistExecution(report, connection),
                     persistEpics(report, connection),
                     persistStories(report, connection),
                     persistTests(report, connection),

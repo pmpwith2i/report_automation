@@ -3,9 +3,19 @@ export interface GetReportFromBucket {
     key: string;
 }
 
-export interface CucumberReport {
+export interface ExecutionReport {
+    timestamp: string;
+    environment: string;
+    features: CucumberFeature[];
+}
+
+export interface CucumberFeature {
     keyword: string;
     name: string;
+    tags: {
+        name: string;
+    }[];
+    uri: string;
     elements: {
         id: string;
         keyword: string;
@@ -20,32 +30,36 @@ export interface CucumberReport {
     }[];
 }
 
-export interface FinalReportResult {
-    epic: FinalReportElement;
-    story: StoryReportElement;
+export interface FeatureElement {
+    id: string;
+    supersede?: string;
+}
+
+export interface Execution {
+    timestamp: string;
+    environment: string;
+}
+
+export type TestReportElement = FeatureElement;
+export type StoryReportElement = FeatureElement;
+
+export interface FeatureResult {
     test: TestReportElement;
-    execution: ReportExecution;
-    result: boolean;
+    status: boolean;
     failure?: {
         step: string;
         stacktrace: string;
     };
 }
 
-export interface FinalReportElement {
-    id: string;
-    supersede: string;
+export interface Feature {
+    epic: FeatureElement;
+    story: StoryReportElement;
+    tests: TestReportElement[];
+    results: FeatureResult[];
 }
-
-export interface ReportExecution {
-    id: string;
-    timestamp: string;
-    environment: string;
-}
-
-export type TestReportElement = FinalReportElement & { storyId: string };
-export type StoryReportElement = FinalReportElement & { epicId: string };
 
 export interface FinalReport {
-    results: FinalReportResult[];
+    features: Feature[];
+    execution: Execution;
 }

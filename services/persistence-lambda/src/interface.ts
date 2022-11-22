@@ -1,26 +1,34 @@
-export interface ReportResult {
-    epic: ReportElement;
-    story: ReportElement;
-    test: ReportElement;
-    result: boolean;
-    execution: ReportExecution;
-    failure?: {
-        step: string;
-        stacktrace: string;
-    };
+export interface ReportExecution {
+    execution: Execution;
+    features: Feature[];
 }
 
-export interface ReportElement {
+export interface FeatureElement {
     id: string;
     supersede: string;
 }
 
-export interface ReportExecution {
-    id: string;
+export interface Execution {
     timestamp: string;
     environment: string;
 }
 
-export interface Report {
-    results: ReportResult[];
+export interface FeatureResult {
+    test: TestReportElement;
+    status: boolean;
+    failure?: {
+        step: string;
+        stacktrace: string;
+        screenshot: any;
+    };
+}
+
+export type TestReportElement = FeatureElement;
+export type StoryReportElement = FeatureElement;
+
+export interface Feature {
+    epic: FeatureElement;
+    story: StoryReportElement;
+    tests: TestReportElement[];
+    results: FeatureResult[];
 }

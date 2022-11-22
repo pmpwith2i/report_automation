@@ -1,5 +1,5 @@
 import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
-import { CucumberReport } from 'interface';
+import { ExecutionReport } from 'interface';
 import Joi from 'joi';
 
 const tagSschema = Joi.array().items(
@@ -28,16 +28,24 @@ const elementsSchema = Joi.array().items(
     }),
 );
 
-const cucumberSchema = Joi.array().items(
-    Joi.object({
-        keyword: Joi.string(),
-        name: Joi.string(),
-        line: Joi.number(),
-        id: Joi.string(),
-        tags: tagSschema,
-        elements: elementsSchema,
-    }),
-);
+const cucumberSchema = Joi.array()
+    .items(
+        Joi.object({
+            keyword: Joi.string(),
+            name: Joi.string(),
+            line: Joi.number(),
+            id: Joi.string(),
+            tags: tagSschema,
+            elements: elementsSchema,
+        }),
+    )
+    .required();
+
+const executionReportSchema = Joi.object({
+    timestamp: Joi.string().required(),
+    environment: Joi.string().required(),
+    features: cucumberSchema,
+});
 
 export const parseBlob = (blob: string): JSON => {
     try {
@@ -47,9 +55,9 @@ export const parseBlob = (blob: string): JSON => {
     }
 };
 
-export const validateCucumberReport = (obj: unknown): CucumberReport[] => {
+export const validateExecutionReport = (obj: unknown): ExecutionReport => {
     lambdaLogger.info('Validating report');
-    const { error, value } = cucumberSchema.validate(obj, { allowUnknown: true });
+    const { error, value } = executionReportSchema.validate(obj, { allowUnknown: true });
 
     if (error) {
         lambdaLogger.debug('Error validating cucumber report', { error });

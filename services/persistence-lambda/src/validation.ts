@@ -1,5 +1,5 @@
 import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
-import { Report } from 'interface';
+import { ReportExecution } from 'interface';
 import Joi from 'joi';
 
 const ReportElementSchema = Joi.object({
@@ -8,28 +8,31 @@ const ReportElementSchema = Joi.object({
 });
 
 const ReportExecutionSchema = Joi.object({
-    id: Joi.string().required(),
     timestamp: Joi.string().required(),
     environment: Joi.string().required(),
 });
 
-const ReportResultSchema = Joi.object({
-    epic: ReportElementSchema.required(),
-    story: ReportElementSchema.required(),
+const FeatureResultsSchema = Joi.object({
     test: ReportElementSchema.required(),
-    result: Joi.boolean().required(),
-    execution: ReportExecutionSchema,
+    status: Joi.boolean().required(),
     failure: Joi.object({
         step: Joi.string().required(),
-        stacktrace: Joi.string(),
+        stacktrace: Joi.string().required(),
     }).allow(null),
 });
 
-const ReportSchema = Joi.array().items({
-    results: Joi.array().items(ReportResultSchema).required(),
+const FeatureSchema = Joi.object({
+    epic: ReportElementSchema.required(),
+    story: ReportElementSchema.required(),
+    results: Joi.array().items(FeatureResultsSchema).required(),
 });
 
-export const validateReport = (obj: unknown): Report[] => {
+const ReportSchema = Joi.object({
+    execution: ReportExecutionSchema.required(),
+    features: Joi.array().items(FeatureSchema).required(),
+});
+
+export const validateReport = (obj: unknown): ReportExecution => {
     lambdaLogger.info('Validating report', { obj });
     const { error, value } = ReportSchema.validate(obj, { allowUnknown: true });
 

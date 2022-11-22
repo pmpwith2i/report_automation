@@ -1,41 +1,39 @@
 import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
-import { CucumberReport, FinalReport, FinalReportElement, FinalReportResult, StoryReportElement, TestReportElement } from 'interface';
+import { CucumberFeature, ExecutionReport, Feature, FeatureElement, FeatureResult, FinalReport, StoryReportElement, TestReportElement } from 'interface';
 export class S3Error extends Error {}
 
-const getResults = (obj: CucumberReport): FinalReportResult[] => {
-    const results: FinalReportResult[] = [];
+const getResults = (obj: CucumberFeature): Feature => {
+    const results: FeatureResult[] = [];
+
+    const uriFolders = obj.uri.split('/');
+    const epicFolder = uriFolders[uriFolders.length - 2];
+
+    const epic: FeatureElement = {
+        id: epicFolder?.split('_')[0],
+    };
+
+    const storyTag = obj.tags.find((tag) => tag?.name?.startsWith('@REQ'));
+
+    const story: StoryReportElement = {
+        id: storyTag?.name?.split('@REQ_')?.[1] ?? '',
+    };
+
+    const tests: TestReportElement[] = [];
+
     obj.elements.forEach((element) => {
-        const epic: FinalReportElement = {
-            id: 'AUT_FIRST_EPIC',
-            supersede: 'Fake supersede',
+        const testTag = element.tags.find((tag) => tag?.name?.startsWith('@TEST'));
+
+        const test: TestReportElement = {
+            id: testTag?.name?.split('@TEST_')?.[1] ?? '',
         };
 
-        const testTag = element.tags.find((tag) => tag?.name?.startsWith('@TEST'));
-        const storyTag = element.tags.find((tag) => tag?.name?.startsWith('@REQ'));
+        tests.push(test);
+
         if (testTag && storyTag) {
-            const story: StoryReportElement = {
-                epicId: epic.id,
-                id: storyTag?.name ?? '',
-                supersede: 'Fake supersede',
-            };
-
-            const test: TestReportElement = {
-                id: testTag?.name ?? '',
-                storyId: story.id,
-                supersede: 'Fake supersede',
-            };
-
             const failedStep = element.steps.find((step) => step.result.status === 'failed');
             results.push({
-                epic,
-                story,
                 test,
-                execution: {
-                    id: `${new Date().getTime()}_FAKE_ENV`,
-                    environment: 'Fake environment',
-                    timestamp: 'Fake timestamp',
-                },
-                result: failedStep !== null,
+                status: failedStep !== null,
                 ...(failedStep && {
                     failure: {
                         step: failedStep.name,
@@ -46,18 +44,28 @@ const getResults = (obj: CucumberReport): FinalReportResult[] => {
         }
     });
 
-    return results;
+    return {
+        epic,
+        story,
+        tests,
+        results,
+    };
 };
 
-export const formatCucumberReport = (reports: CucumberReport[]): FinalReport[] => {
+export const formatFeatures = (cucumberFeatures: CucumberFeature[]): Feature[] => {
     lambdaLogger.info('Formatting report');
-    const finalReports: FinalReport[] = reports.map((cucumberReport) => {
-        const results = getResults(cucumberReport);
-
-        return {
-            results,
-        };
+    const finalReports: Feature[] = cucumberFeatures.map((cucumberFeature) => {
+        const results = getResults(cucumberFeature);
+        return results;
     });
 
     return finalReports;
 };
+
+export const formatExecutionReport = (obj: ExecutionReport): FinalReport => ({
+    features: formatFeatures(obj.features),
+    execution: {
+        timestamp: new Date().toISOString(),
+        environment: obj.environment,
+    },
+});

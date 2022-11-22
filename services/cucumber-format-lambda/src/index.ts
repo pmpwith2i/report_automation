@@ -5,9 +5,10 @@ import { SQS } from 'aws-sdk';
 import { SendMessageRequest } from 'aws-sdk/clients/sqs';
 import { SNS_QUEUE_URL } from './constants';
 import { getReportFromBucket } from 'strategy';
-import { formatCucumberReport, S3Error } from 'utils';
-import { parseBlob, validateCucumberReport } from 'validation';
+import { formatExecutionReport, S3Error } from 'utils';
+import { parseBlob, validateExecutionReport } from 'validation';
 import Joi from 'joi';
+import { ExecutionReport } from 'interface';
 
 const sqs = new SQS({ apiVersion: 'latest' });
 
@@ -25,13 +26,13 @@ export const handler = async (event: S3Event, context: Context): Promise<boolean
         const blob = await getReportFromBucket({ bucketName, key });
         const jsonObj = parseBlob(blob.toString());
 
-        const cucumberReport = validateCucumberReport(jsonObj);
-        const finalReport = formatCucumberReport(cucumberReport);
+        const executionReport: ExecutionReport = validateExecutionReport(jsonObj);
+        const formattedJson = formatExecutionReport(executionReport);
 
         lambdaLogger.info(`Sendind message to queue -> ${SNS_QUEUE_URL}`);
 
         const params: SendMessageRequest = {
-            MessageBody: JSON.stringify(finalReport),
+            MessageBody: JSON.stringify(formattedJson),
             QueueUrl: SNS_QUEUE_URL,
         };
 

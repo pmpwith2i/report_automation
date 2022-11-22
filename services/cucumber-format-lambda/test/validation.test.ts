@@ -1,5 +1,5 @@
 import 'mocha';
-import { parseBlob, validateCucumberReport } from 'validation';
+import { parseBlob, validateExecutionReport } from 'validation';
 import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
@@ -7,7 +7,7 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 import cucumberReport from '../source/cucumberreport.json';
-import { CucumberReport } from 'interface';
+import { ExecutionReport } from 'interface';
 import Joi from 'joi';
 
 describe('validation tests', () => {
@@ -27,12 +27,12 @@ describe('validation tests', () => {
         });
     });
 
-    describe('when validateCucumberReport is invoked', () => {
+    describe('when validateExecutionReport is invoked', () => {
         describe('and an invalid json is passed', () => {
-            let res: (obj: unknown) => CucumberReport[];
+            let res: (obj: unknown) => ExecutionReport;
 
             before(() => {
-                res = () => validateCucumberReport({ ok: 'ok' });
+                res = () => validateExecutionReport({ ok: 'ok' });
             });
 
             it('should throw an error', () => {
@@ -41,14 +41,26 @@ describe('validation tests', () => {
         });
 
         describe('and a valid json is passed', () => {
-            let res: CucumberReport[];
+            let res: ExecutionReport;
 
             before(() => {
-                res = validateCucumberReport(cucumberReport);
+                res = validateExecutionReport(cucumberReport);
             });
 
             it('should return an object', () => {
                 expect(res).to.not.be.null;
+            });
+
+            it('should return the environment', () => {
+                expect(res.environment).to.equal('local');
+            });
+
+            it('should return timestamp', () => {
+                expect(res.timestamp).to.equal('2022-11-22T15:00:00.000Z');
+            });
+
+            it('should return the features', () => {
+                expect(res.features).to.be.an('array');
             });
         });
     });
