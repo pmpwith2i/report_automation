@@ -1,10 +1,14 @@
+import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
 import { CucumberReport, FinalReport, FinalReportElement, FinalReportResult, StoryReportElement, TestReportElement } from 'interface';
-export class ValidationError extends Error {}
+export class S3Error extends Error {}
 
-const getResults = (obj: CucumberReport) => {
+const getResults = (obj: CucumberReport): FinalReportResult[] => {
     const results: FinalReportResult[] = [];
     obj.elements.forEach((element) => {
-        const epic: FinalReportElement = { id: 'AUT_FIRST_EPIC', supersede: 'Fake supersede' };
+        const epic: FinalReportElement = {
+            id: 'AUT_FIRST_EPIC',
+            supersede: 'Fake supersede',
+        };
 
         const testTag = element.tags.find((tag) => tag?.name?.startsWith('@TEST'));
         const storyTag = element.tags.find((tag) => tag?.name?.startsWith('@REQ'));
@@ -22,11 +26,15 @@ const getResults = (obj: CucumberReport) => {
             };
 
             const failedStep = element.steps.find((step) => step.result.status === 'failed');
-
             results.push({
                 epic,
                 story,
                 test,
+                execution: {
+                    id: `${new Date().getTime()}_FAKE_ENV`,
+                    environment: 'Fake environment',
+                    timestamp: 'Fake timestamp',
+                },
                 result: failedStep !== null,
                 ...(failedStep && {
                     failure: {
@@ -42,20 +50,11 @@ const getResults = (obj: CucumberReport) => {
 };
 
 export const formatCucumberReport = (reports: CucumberReport[]): FinalReport[] => {
+    lambdaLogger.info('Formatting report');
     const finalReports: FinalReport[] = reports.map((cucumberReport) => {
         const results = getResults(cucumberReport);
-        const epics = results.map((result) => result.epic);
-        const stories = results.map((result) => result.story);
-        const tests = results.map((result) => result.test);
 
         return {
-            execution: {
-                timestamp: new Date().toISOString(),
-                environment: 'DEV',
-            },
-            epics,
-            stories,
-            tests,
             results,
         };
     });

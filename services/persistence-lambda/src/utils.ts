@@ -2,7 +2,6 @@ import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
 import { PoolConnection } from 'mysql';
 
 export class DatabaseError extends Error {}
-export class ValidationError extends Error {}
 
 export const execQueryPromise = (connection: PoolConnection, sql: string, values?: unknown[]) =>
     new Promise((resolve, reject) => {

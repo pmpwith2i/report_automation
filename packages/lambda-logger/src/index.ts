@@ -1,1 +1,1 @@
-export * from './lambda-logger';
+export * from "./lambda-logger";

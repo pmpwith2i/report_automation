@@ -6,10 +6,9 @@ import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-import { ValidationError } from 'utils';
-
 import cucumberReport from '../source/cucumberreport.json';
 import { CucumberReport } from 'interface';
+import Joi from 'joi';
 
 describe('validation tests', () => {
     describe('when parseBlob is invoked', () => {
@@ -37,7 +36,7 @@ describe('validation tests', () => {
             });
 
             it('should throw an error', () => {
-                expect(res).to.throw(ValidationError);
+                expect(res).to.throw(Joi.ValidationError);
             });
         });
 
@@ -48,7 +47,7 @@ describe('validation tests', () => {
                 res = validateCucumberReport(cucumberReport);
             });
 
-            it('should throw an error', () => {
+            it('should return an object', () => {
                 expect(res).to.not.be.null;
             });
         });

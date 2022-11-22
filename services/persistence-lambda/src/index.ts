@@ -4,8 +4,8 @@ import { Context, SQSEvent } from 'aws-lambda';
 import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME } from './constants';
 import mysql from 'mysql';
 import { persistToDb } from 'strategy';
-import { ValidationError } from 'utils';
 import { validateReport } from 'validation';
+import Joi from 'joi';
 
 export const connPool = mysql.createPool({
     host: DB_HOST,
@@ -15,12 +15,12 @@ export const connPool = mysql.createPool({
     port: parseInt(DB_PORT),
 });
 
-export const handler = async (event: SQSEvent, context: Context) => {
+export const handler = async (event: SQSEvent, context: Context): Promise<boolean> => {
     try {
         withRequest(event, context);
         context.callbackWaitsForEmptyEventLoop = false;
 
-        lambdaLogger.info('Received event', { event });
+        lambdaLogger.info('Received records', { recordsNumber: event.Records.length });
 
         for (const record of event.Records) {
             const reports = validateReport(JSON.parse(record.body ?? {}));
@@ -28,9 +28,10 @@ export const handler = async (event: SQSEvent, context: Context) => {
         }
 
         lambdaLogger.info('Records persisted to DB');
+        return true;
     } catch (error: unknown) {
-        if (error instanceof ValidationError) {
-            lambdaLogger.error('Validation error', { message: error.message });
+        if (error instanceof Joi.ValidationError) {
+            lambdaLogger.error('Validation error', { error });
             return false;
         }
 

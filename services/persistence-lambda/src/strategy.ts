@@ -6,17 +6,24 @@ import { DatabaseError, execQueryPromise } from 'utils';
 
 const persistEpics = (report: Report, connection: PoolConnection) => {
     const insertEpicsSql = 'INSERT INTO epic (id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return execQueryPromise(connection, insertEpicsSql, [report.epics.map((epic) => [epic.id, epic.supersede])]);
+    return execQueryPromise(connection, insertEpicsSql, [report.results.map((result) => [result.epic.id, result.epic.supersede])]);
 };
 
 const persistStories = (report: Report, connection: PoolConnection) => {
     const insertStoriesSql = 'INSERT INTO story (id, epic_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return execQueryPromise(connection, insertStoriesSql, [report.stories.map((story) => [story.id, story.epicId, story.supersede])]);
+    return execQueryPromise(connection, insertStoriesSql, [report.results.map((result) => [result.story.id, result.epic.id, result.story.supersede])]);
 };
 
 const persistTests = (report: Report, connection: PoolConnection) => {
     const insertTestsSql = 'INSERT INTO test (id, story_id, supersede) VALUES ? ON DUPLICATE KEY UPDATE supersede = VALUES(supersede)';
-    return execQueryPromise(connection, insertTestsSql, [report.tests.map((test) => [test.id, test.storyId, test.supersede])]);
+    return execQueryPromise(connection, insertTestsSql, [report.results.map((result) => [result.test.id, result.story.id, result.test.supersede])]);
+};
+
+const persistResults = (report: Report, connection: PoolConnection) => {
+    const insertExecutionsSql = 'INSERT INTO execution (id, timestamp, environment result, test_id) VALUES ?';
+    return execQueryPromise(connection, insertExecutionsSql, [
+        report.results.map((result) => [result.execution.id, result.execution.timestamp, result.execution.environment, result.result, result.test.id]),
+    ]);
 };
 
 export const persistToDb = (report: Report) => {
@@ -33,7 +40,12 @@ export const persistToDb = (report: Report) => {
                     return reject(new DatabaseError('Error starting transaction'));
                 }
 
-                Promise.all([persistEpics(report, connection), persistStories(report, connection), persistTests(report, connection)])
+                Promise.all([
+                    persistEpics(report, connection),
+                    persistStories(report, connection),
+                    persistTests(report, connection),
+                    persistResults(report, connection),
+                ])
                     .then(() => {
                         connection.commit((err) => {
                             if (err) {

@@ -28,34 +28,34 @@ describe('utils tests', () => {
                 expect(res[0]).to.be.an('object');
             });
 
-            it('should return an array of FinalReport with the correct properties', () => {
-                expect(res[0]).to.have.property('epics');
-                expect(res[0]).to.have.property('stories');
-                expect(res[0]).to.have.property('tests');
-                expect(res[0]).to.have.property('results');
-            });
-
-            it('should return an array of FinalReport with the correct epics property', () => {
-                expect(res[0].epics[0]).to.have.property('id');
-                expect(res[0].epics[0]).to.have.property('supersede');
-            });
-
-            it('should return an array of FinalReport with the correct stories property', () => {
-                expect(res[0].stories[0]).to.have.property('id');
-                expect(res[0].stories[0]).to.have.property('supersede');
-            });
-
-            it('should return an array of FinalReport with the correct tests property', () => {
-                expect(res[0].tests[0]).to.have.property('id');
-                expect(res[0].tests[0]).to.have.property('supersede');
-            });
-
             it('should return an array of FinalReport with the correct results property', () => {
                 expect(res[0].results[0]).to.have.property('epic');
                 expect(res[0].results[0]).to.have.property('story');
                 expect(res[0].results[0]).to.have.property('test');
                 expect(res[0].results[0]).to.have.property('result');
                 expect(res[0].results[0]).to.have.property('failure');
+                expect(res[0].results[0]).to.have.property('execution');
+            });
+
+            it('should returna valid execution object', () => {
+                expect(res[0].results[0].execution).to.have.property('id');
+                expect(res[0].results[0].execution).to.have.property('timestamp');
+                expect(res[0].results[0].execution).to.have.property('environment');
+            });
+
+            it('should returna valid epic object', () => {
+                expect(res[0].results[0].epic).to.have.property('id');
+                expect(res[0].results[0].epic).to.have.property('supersede');
+            });
+
+            it('should returna valid story object', () => {
+                expect(res[0].results[0].story).to.have.property('id');
+                expect(res[0].results[0].story).to.have.property('supersede');
+            });
+
+            it('should returna valid test object', () => {
+                expect(res[0].results[0].test).to.have.property('id');
+                expect(res[0].results[0].test).to.have.property('supersede');
             });
         });
     });

@@ -1,7 +1,7 @@
 import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
 import { CucumberReport } from 'interface';
 import Joi from 'joi';
-import { ValidationError } from 'utils';
+
 const tagSschema = Joi.array().items(
     Joi.object({
         name: Joi.string(),
@@ -41,20 +41,19 @@ const cucumberSchema = Joi.array().items(
 
 export const parseBlob = (blob: string): JSON => {
     try {
-        lambdaLogger.info('Parsing blob');
         return JSON.parse(blob);
     } catch (error: unknown) {
-        lambdaLogger.error('Error parsing blob', { error });
         throw new Error('Error parsing blob');
     }
 };
 
 export const validateCucumberReport = (obj: unknown): CucumberReport[] => {
+    lambdaLogger.info('Validating report');
     const { error, value } = cucumberSchema.validate(obj, { allowUnknown: true });
 
     if (error) {
         lambdaLogger.debug('Error validating cucumber report', { error });
-        throw new ValidationError('Error validating cucumber report');
+        throw error;
     }
 
     return value;

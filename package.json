@@ -10,9 +10,11 @@
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "test": "turbo run test",
+    "coverage": "nyc npm run test",
     "deploy": "turbo run deploy --filter=@packages/aws-cdk",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\" && turbo run lint:fix"
   },
   "devDependencies": {
     "@packages/eslint-config-custom": "*",
@@ -22,6 +24,22 @@
     "tsconfig-paths": "^4.1.0",
     "turbo": "latest"
   },
+  "nyc": {
+		"include": [
+			"services/**/src/**/*"
+		],
+		"extension": [
+			".ts"
+		],
+		"exclude": [
+			"**/*.d.ts"
+		],
+		"reporter": [
+			"html",
+			"lcov"
+		],
+		"all": true
+	},
   "engines": {
     "node": ">=14.0.0"
   },

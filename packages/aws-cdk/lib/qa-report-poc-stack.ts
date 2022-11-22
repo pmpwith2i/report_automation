@@ -62,6 +62,7 @@ export class QAReportPocStack extends cdk.Stack {
         dbSecurityGroup.addIngressRule(persistenceLambdaSecurityGroup, Port.tcp(parseInt(props.dbPort)), 'Lambda to Postgres database');
 
         qaReportQueue.grantSendMessages(cucumberFormatLambda);
+
         reportBucket.addEventNotification(EventType.OBJECT_CREATED, new s3n.LambdaDestination(cucumberFormatLambda));
         reportBucket.grantRead(cucumberFormatLambda);
     }

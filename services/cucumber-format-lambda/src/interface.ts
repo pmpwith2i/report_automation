@@ -24,6 +24,7 @@ export interface FinalReportResult {
     epic: FinalReportElement;
     story: StoryReportElement;
     test: TestReportElement;
+    execution: ReportExecution;
     result: boolean;
     failure?: {
         step: string;
@@ -36,16 +37,15 @@ export interface FinalReportElement {
     supersede: string;
 }
 
+export interface ReportExecution {
+    id: string;
+    timestamp: string;
+    environment: string;
+}
+
 export type TestReportElement = FinalReportElement & { storyId: string };
 export type StoryReportElement = FinalReportElement & { epicId: string };
 
 export interface FinalReport {
-    execution: {
-        timestamp: string;
-        environment: string;
-    };
-    epics: FinalReportElement[];
-    stories: StoryReportElement[];
-    tests: TestReportElement[];
     results: FinalReportResult[];
 }

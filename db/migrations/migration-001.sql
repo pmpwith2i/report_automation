@@ -1,3 +1,8 @@
+drop table if exists epics;
+drop table if exists stories;
+drop table if EXISTS executions;
+drop table if EXISTS tests;
+
 CREATE TABLE epic (
     id VARCHAR(32) PRIMARY KEY,
     supersede TEXT NOT NULL,
@@ -28,6 +33,7 @@ CREATE TABLE execution (
     id VARCHAR(32) PRIMARY KEY,
     test_id VARCHAR(32) NOT NULL REFERENCES test(id),
     result BOOLEAN NOT NULL,
+    timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
