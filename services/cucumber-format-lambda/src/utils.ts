@@ -1,8 +1,10 @@
 import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
+import { KEYWORD_AFTER, MIMETYPE_IMAGE_PNG, STATUS_FAILED } from './constants';
 import { CucumberFeature, ExecutionReport, Feature, FeatureElement, FeatureResult, FinalReport, StoryReportElement, TestReportElement } from 'interface';
+import { putScreenshotIntoBucket } from 'strategy';
 export class S3Error extends Error {}
 
-const getResults = (obj: CucumberFeature): Feature => {
+const getResults = (obj: CucumberFeature, executionEnvironment: string, executionTimestamp: string): Feature => {
     const results: FeatureResult[] = [];
 
     const uriFolders = obj.uri.split('/');
@@ -30,14 +32,40 @@ const getResults = (obj: CucumberFeature): Feature => {
         tests.push(test);
 
         if (testTag && storyTag) {
-            const failedStep = element.steps.find((step) => step.result.status === 'failed');
+            let screenshot;
+            let status = true;
+            let stacktrace = '';
+            let failedStepName;
+            for (const step of element.steps) {
+                if (step.result.status === STATUS_FAILED) {
+                    status = false;
+                    failedStepName = step.name;
+                    stacktrace = step.result.error_message;
+                }
+
+                if (!status && step.keyword == KEYWORD_AFTER) {
+                    const imageScreenshot = step.embeddings.find((embedding) => embedding.mime_type === MIMETYPE_IMAGE_PNG);
+                    if (imageScreenshot) {
+                        screenshot = `${executionEnvironment}_ ${executionTimestamp}_${test.id}`;
+                        putScreenshotIntoBucket({
+                            key: `screenshots/${screenshot}.png`,
+                            body: Buffer.from(imageScreenshot.data, 'base64'),
+                            contentType: imageScreenshot.mime_type,
+                            contentEnconding: 'base64',
+                        });
+                        break;
+                    }
+                }
+            }
+
             results.push({
                 test,
-                status: failedStep !== null,
-                ...(failedStep && {
+                status,
+                ...(failedStepName && {
                     failure: {
-                        step: failedStep.name,
-                        stacktrace: 'TBD---TBD',
+                        step: failedStepName,
+                        stacktrace,
+                        screenshot,
                     },
                 }),
             });
@@ -52,20 +80,20 @@ const getResults = (obj: CucumberFeature): Feature => {
     };
 };
 
-export const formatFeatures = (cucumberFeatures: CucumberFeature[]): Feature[] => {
-    lambdaLogger.info('Formatting report');
-    const finalReports: Feature[] = cucumberFeatures.map((cucumberFeature) => {
-        const results = getResults(cucumberFeature);
+export const formatFeatures = (executionReport: ExecutionReport): Feature[] => {
+    lambdaLogger.info('Formatting report features');
+    const finalReports: Feature[] = executionReport.features.map((cucumberFeature) => {
+        const results = getResults(cucumberFeature, executionReport.environment, executionReport.timestamp);
         return results;
     });
 
     return finalReports;
 };
 
-export const formatExecutionReport = (obj: ExecutionReport): FinalReport => ({
-    features: formatFeatures(obj.features),
+export const formatExecutionReport = (executionReport: ExecutionReport): FinalReport => ({
+    features: formatFeatures(executionReport),
     execution: {
-        timestamp: new Date().toISOString(),
-        environment: obj.environment,
+        timestamp: executionReport.timestamp,
+        environment: executionReport.environment,
     },
 });

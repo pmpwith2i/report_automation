@@ -8,7 +8,8 @@ import { getReportFromBucket } from 'strategy';
 import { formatExecutionReport, S3Error } from 'utils';
 import { parseBlob, validateExecutionReport } from 'validation';
 import Joi from 'joi';
-import { ExecutionReport } from 'interface';
+import { ExecutionReport, FinalReport } from 'interface';
+import { Body } from 'aws-sdk/clients/s3';
 
 const sqs = new SQS({ apiVersion: 'latest' });
 
@@ -23,11 +24,11 @@ export const handler = async (event: S3Event, context: Context): Promise<boolean
 
         lambdaLogger.info('Received object', { bucketName, key });
 
-        const blob = await getReportFromBucket({ bucketName, key });
-        const jsonObj = parseBlob(blob.toString());
+        const blob: Body = await getReportFromBucket({ bucketName, key });
+        const jsonObj: JSON = parseBlob(blob.toString());
 
         const executionReport: ExecutionReport = validateExecutionReport(jsonObj);
-        const formattedJson = formatExecutionReport(executionReport);
+        const formattedJson: FinalReport = formatExecutionReport(executionReport);
 
         lambdaLogger.info(`Sendind message to queue -> ${SNS_QUEUE_URL}`);
 

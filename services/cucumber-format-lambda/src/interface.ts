@@ -3,6 +3,13 @@ export interface GetReportFromBucket {
     key: string;
 }
 
+export interface PutScreenshotIntoBucket {
+    key: string;
+    body: Buffer;
+    contentType: string;
+    contentEnconding: string;
+}
+
 export interface ExecutionReport {
     timestamp: string;
     environment: string;
@@ -24,8 +31,10 @@ export interface CucumberFeature {
             name: string;
         }[];
         steps: {
+            keyword: string;
             name: string;
-            result: { status: 'passed' | 'failed' };
+            result: { status: 'passed' | 'failed'; error_message: string; duration: number };
+            embeddings: { data: string; mime_type: string }[];
         }[];
     }[];
 }
@@ -49,6 +58,7 @@ export interface FeatureResult {
     failure?: {
         step: string;
         stacktrace: string;
+        screenshot?: string;
     };
 }
 

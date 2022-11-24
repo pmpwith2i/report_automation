@@ -14,7 +14,13 @@ const stepsSchema = Joi.array().items(
         keyword: Joi.string(),
         line: Joi.number(),
         name: Joi.string(),
-        result: Joi.object({ status: Joi.string() }),
+        embeddings: Joi.array().items(
+            Joi.object({
+                data: Joi.string(),
+                mime_type: Joi.string(),
+            }),
+        ),
+        result: Joi.object({ status: Joi.string(), duration: Joi.number(), error_message: Joi.string() }),
     }),
 );
 

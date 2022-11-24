@@ -52,15 +52,36 @@ describe('validation tests', () => {
             });
 
             it('should return the environment', () => {
-                expect(res.environment).to.equal('local');
+                expect(res.environment).to.be.a.string;
             });
 
             it('should return timestamp', () => {
-                expect(res.timestamp).to.equal('2022-11-22T15:00:00.000Z');
+                expect(res.timestamp).to.be.a.string;
+                expect(Date.parse(res.timestamp)).to.not.be.NaN;
             });
 
             it('should return the features', () => {
                 expect(res.features).to.be.an('array');
+            });
+
+            it('should return the features with the correct properties', () => {
+                expect(res.features[0]).to.contains.all.keys('keyword', 'name', 'tags', 'elements', 'uri');
+            });
+
+            it('should return the elements', () => {
+                expect(res.features[0].elements).to.be.an('array');
+            });
+
+            it('should return the elements with the correct properties', () => {
+                expect(res.features[0].elements[0]).to.contains.all.keys('keyword', 'name', 'tags', 'steps');
+            });
+
+            it('should return the steps', () => {
+                expect(res.features[0].elements[0].steps).to.be.an('array');
+            });
+
+            it('should return the steps with the correct properties', () => {
+                expect(res.features[0].elements[0].steps[0]).to.contains.all.keys('keyword', 'name', 'result');
             });
         });
     });

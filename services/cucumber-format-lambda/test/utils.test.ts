@@ -48,6 +48,10 @@ describe('utils tests', () => {
             it('should return a valid test object', () => {
                 expect(res.features[0].results[0].test).to.have.property('id');
             });
+
+            it('should return a valid failure object', () => {
+                expect(res.features[0].results.find((el) => !el.status)?.failure).to.have.all.keys('step', 'screenshot', 'stacktrace');
+            });
         });
     });
 });

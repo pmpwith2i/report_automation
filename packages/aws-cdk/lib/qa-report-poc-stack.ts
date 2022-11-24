@@ -22,6 +22,9 @@ export class QAReportPocStack extends cdk.Stack {
         });
 
         const reportBucket = Bucket.fromBucketName(this, 'ReportBucket', 'qa-federico-report-poc-bucket');
+        const screenshotBucket = new Bucket(this, 'ScreenshotBucket', {
+            bucketName: props?.screenshotBucketName,
+        });
 
         const qaReportQueue = new Queue(this, 'QAReportPocQueue', {
             visibilityTimeout: Duration.seconds(30), // default,
@@ -38,7 +41,9 @@ export class QAReportPocStack extends cdk.Stack {
             architecture: Architecture.ARM_64,
             environment: {
                 SNS_QUEUE_URL: qaReportQueue.queueUrl,
+                SCREENSHOT_BUCKET_NAME: screenshotBucket.bucketName,
             },
+            timeout: Duration.seconds(props.formatLambdaTimeout),
             vpc,
         });
 
@@ -55,7 +60,7 @@ export class QAReportPocStack extends cdk.Stack {
                 DB_PASSWORD: props?.dbPassword,
                 DB_NAME: props?.dbName,
             },
-            timeout: Duration.seconds(30),
+            timeout: Duration.seconds(props.persistenceLambdaTimeout),
             events: [sqsEventSource],
         });
 
@@ -63,7 +68,11 @@ export class QAReportPocStack extends cdk.Stack {
 
         qaReportQueue.grantSendMessages(cucumberFormatLambda);
 
-        reportBucket.addEventNotification(EventType.OBJECT_CREATED, new s3n.LambdaDestination(cucumberFormatLambda));
+        reportBucket.addEventNotification(EventType.OBJECT_CREATED, new s3n.LambdaDestination(cucumberFormatLambda), {
+            prefix: props.cucumberPrefix,
+        });
         reportBucket.grantRead(cucumberFormatLambda);
+        screenshotBucket.grantPut(cucumberFormatLambda);
+        screenshotBucket.grantWrite(cucumberFormatLambda);
     }
 }
