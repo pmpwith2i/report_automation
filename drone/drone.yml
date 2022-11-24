@@ -20,12 +20,11 @@ steps:
 
 - name : Build and deploy
   image: node:16
-  commands: 
-  - npm run build
-  - npm run deploy
   environment:
     CDK_AWS_ACCOUNT_ID:
       from_secret: CDK_AWS_ACCOUNT_ID
-    CDK_AWS_REGION:
-      from_secret: us-west-2
+    CDK_AWS_REGION: us-west-2
+  commands: 
+  - npm run build
+  - npm run deploy
     
