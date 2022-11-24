@@ -19,7 +19,7 @@ export interface FeatureResult {
     failure?: {
         step: string;
         stacktrace: string;
-        screenshot: any;
+        screenshot: string;
     };
 }
 

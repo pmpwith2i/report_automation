@@ -17,6 +17,7 @@ export class QAReportPocStack extends cdk.Stack {
         const vpc = Vpc.fromLookup(this, 'QaReportVPC', { vpcId: props?.vpcId });
 
         const dbSecurityGroup = SecurityGroup.fromSecurityGroupId(this, 'dbSeecurityGroup', 'sg-055bb47a2d144363b');
+
         const persistenceLambdaSecurityGroup = new SecurityGroup(this, 'PersistenceLambdaSecurityGroup', {
             vpc,
         });
