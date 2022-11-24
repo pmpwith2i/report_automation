@@ -1,0 +1,24 @@
+kind: pipeline
+name: default
+
+steps:
+- name: Install packages
+  image: node
+  commands:
+  - npm install
+
+- name: Lint and test
+  image: node
+  commands: 
+  - npm run lint
+  - npm run test
+
+- name : Build
+  image: node
+  commands: 
+  - npm run build
+
+- name: Deploy services
+  image: node
+  commands:
+  - npm run deploy
