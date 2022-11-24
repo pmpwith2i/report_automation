@@ -8,7 +8,7 @@ platform:
 
 steps:
 - name: Install packages
-  image: node:16
+  image: node:16-alpine
   commands:
   - npm install
 
