@@ -8,18 +8,18 @@ platform:
 
 steps:
 - name: Install packages
-  image: node:alpine
+  image: node:16
   commands:
   - npm install
 
 - name: Lint and test
-  image: node:alpine
+  image: node:16
   commands: 
   - npm run lint
   - npm run test
 
 - name : Build and deploy
-  image: node:alpine
+  image: node:16
   commands: 
   - npm run build
   - npm run deploy
