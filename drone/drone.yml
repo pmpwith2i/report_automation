@@ -2,6 +2,10 @@ kind: pipeline
 type: docker
 name: automation_poc_pipeline
 
+trigger:
+  branch:
+  - master
+
 platform:
   os: linux
   arch: amd64
