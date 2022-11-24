@@ -12,13 +12,18 @@ steps:
   commands:
   - npm install
 
+- name: Build
+  image: node:16-alpine
+  commands:
+  - npm run build
+
 # - name: Lint and test
 #   image: node:16
 #   commands: 
 #   - npm run lint
 #   - npm run test
 
-- name : Build and deploy
+- name : AWS CDK Deploy
   image: node:16
   environment:
     CDK_AWS_ACCOUNT_ID:
@@ -37,14 +42,13 @@ steps:
     PERSISTENCE_LAMBDA_TIMEOUT: 30
     FORMAT_LAMBDA_TIMEOUT: 60
     SCREENSHOT_BUCKET_NAME: qa-report-poc-federico-screenshots
-    AWS_ACCESS_KEY:
-      from_secret: AWS_ACCESS_KEY
+    AWS_ACCESS_KEY_ID:
+      from_secret: AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY:
       from_secret: AWS_SECRET_ACCESS_KEY
     AWS_DEFAULT_REGION:
       from_secret: AWS_DEFAULT_REGION
 
   commands: 
-  - npm run build
   - npm run deploy
     
