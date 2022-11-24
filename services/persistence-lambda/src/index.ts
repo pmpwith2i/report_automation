@@ -15,7 +15,7 @@ export const connPool = mysql.createPool({
     port: parseInt(DB_PORT),
 });
 
-export const handler = async (event: SQSEvent, context: Context): Promise<any> => {
+export const handler = async (event: SQSEvent, context: Context): Promise<unknown> => {
     try {
         withRequest(event, context);
 
