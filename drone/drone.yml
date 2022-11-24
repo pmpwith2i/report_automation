@@ -24,8 +24,7 @@ steps:
 - name: Lint and test
   image: node:16
   commands: 
-  - npm run lint
-  - npm run test
+  - npx turbo run lint test
 
 - name : AWS CDK Deploy
   image: node:16
