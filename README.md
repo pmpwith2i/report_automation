@@ -1,4 +1,5 @@
 # Report automation
+[![Build Status](https://drone2.planbit.net/api/badges/pmpwith2i/report_automation/status.svg)](https://drone2.planbit.net/pmpwith2i/report_automation)
 
 This is a POC of a report automation suite using AWS cloud
 
