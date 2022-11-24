@@ -25,6 +25,9 @@ steps:
 
 - name : AWS CDK Deploy
   image: node:16
+  when:
+    branch:
+    - master
   environment:
     CDK_AWS_ACCOUNT_ID:
       from_secret: CDK_AWS_ACCOUNT_ID
