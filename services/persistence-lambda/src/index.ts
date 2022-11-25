@@ -19,7 +19,9 @@ export const handler = async (event: SQSEvent, context: Context): Promise<unknow
     try {
         withRequest(event, context);
 
-        lambdaLogger.info('Received records', { recordsNumber: event.Records.length });
+        lambdaLogger.info('Received records', {
+            recordsNumber: event.Records.length,
+        });
 
         for (const record of event.Records) {
             record.receiptHandle;

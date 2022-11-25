@@ -1,4 +1,5 @@
 # Report automation
+
 [![Build Status](https://drone2.planbit.net/api/badges/pmpwith2i/report_automation/status.svg)](https://drone2.planbit.net/pmpwith2i/report_automation)
 
 This is a POC of a report automation suite using AWS cloud
@@ -80,31 +81,40 @@ and then use in the project by adding the following **eslintrc.json** file
 ```
 
 ## Deploy
-The deploy of the application is provided by the **AWS CDK**. The CDK is used to deploy the lambdas on AWS. You can find the files of cdk under the folder *packages/aws-cdk/*. The entrypoint of the cdk is the file *bin/aws-cdk.ts*.
+
+The deploy of the application is provided by the **AWS CDK**. The CDK is used to deploy the lambdas on AWS. You can find the files of cdk under the folder _packages/aws-cdk/_. The entrypoint of the cdk is the file _bin/aws-cdk.ts_.
 Before deploying an application you have to setup an account on AWS and export the access keys. Then you have to setu your environment by runnning (you need to install the aws-cli before this)
+
 ```
 aws configure
 cd packages/aws-cdk
 npx cdk bootstrap
 npx cdk synth
 ```
+
 After this you can back to the root of the project and you can create a .env file
+
 ```
 touch .env
 ```
-After this you have to fill out your .env with the env variables that you can find in the file *.env.sample*
+
+After this you have to fill out your .env with the env variables that you can find in the file _.env.sample_
 After this you're ready for deploy.
+
 ```
 . ./load_dotenv.sh ## only in local
 npm run deploy
 ```
 
 ## Test and Coverage
+
 The coverage of the project is provided by nyc. For getting the coverage run these commands (the build command is not mandatory but in most cases it prevent cache issues :) )
+
 ```
 npm run build
 npm run coverage
 ```
-You'll see the results of coverage under the folder *coverage/* by opening the file **index.html** 
+
+You'll see the results of coverage under the folder _coverage/_ by opening the file **index.html**
 
 ![](readme/03-coverage.png)
