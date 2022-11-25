@@ -6,6 +6,10 @@
     "packages/*",
     "services/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pmpwith2i/report_automation"
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
