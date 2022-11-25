@@ -64,3 +64,9 @@ steps:
   - export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
   - npm run cdk:diff
   - npm run deploy
+
+
+  - name: Bump versions and tags
+    image: node:16
+    commands: 
+    - npm run version
