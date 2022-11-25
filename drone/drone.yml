@@ -29,10 +29,8 @@ steps:
 - name : AWS CDK Deploy
   image: node:16
   when:
-    branch:
-    - master
-    event:
-    - push
+    ref:
+    - refs/tags/*
 
   environment:
     CDK_AWS_ACCOUNT_ID:
