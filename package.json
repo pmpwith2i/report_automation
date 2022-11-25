@@ -20,29 +20,33 @@
   "devDependencies": {
     "@packages/eslint-config-custom": "*",
     "@types/mysql": "^2.15.21",
+    "changeset": "^0.2.6",
     "esbuild": "^0.15.14",
     "prettier": "latest",
     "tsconfig-paths": "^4.1.0",
     "turbo": "latest"
   },
   "nyc": {
-		"include": [
-			"services/**/src/**/*"
-		],
-		"extension": [
-			".ts"
-		],
-		"exclude": [
-			"**/*.d.ts"
-		],
-		"reporter": [
-			"html",
-			"lcov"
-		],
-		"all": true
-	},
+    "include": [
+      "services/**/src/**/*"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "html",
+      "lcov"
+    ],
+    "all": true
+  },
   "engines": {
     "node": ">=14.0.0"
   },
-  "packageManager": "npm@8.19.1"
+  "packageManager": "npm@8.19.1",
+  "dependencies": {
+    "@changesets/cli": "^2.25.2"
+  }
 }
