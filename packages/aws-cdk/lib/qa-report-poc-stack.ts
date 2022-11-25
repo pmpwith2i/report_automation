@@ -48,6 +48,8 @@ export class QAReportPocStack extends cdk.Stack {
             vpc,
         });
 
+        // --
+
         new NodejsFunction(this, 'report-persistence-handler', {
             entry: '../../services/persistence-lambda/src/index.ts',
             runtime: Runtime.NODEJS_16_X,
