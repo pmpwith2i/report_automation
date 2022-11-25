@@ -66,7 +66,7 @@ steps:
   - npm run deploy
 
 
-  - name: Bump versions and tags
-    image: node:16
-    commands: 
-    - npm run version
+- name: Bump versions and tags
+  image: node:16
+  commands: 
+  - npm run version
