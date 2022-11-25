@@ -20,7 +20,11 @@ const stepsSchema = Joi.array().items(
                 mime_type: Joi.string(),
             }),
         ),
-        result: Joi.object({ status: Joi.string(), duration: Joi.number(), error_message: Joi.string() }),
+        result: Joi.object({
+            status: Joi.string(),
+            duration: Joi.number(),
+            error_message: Joi.string(),
+        }),
     }),
 );
 
@@ -63,7 +67,9 @@ export const parseBlob = (blob: string): JSON => {
 
 export const validateExecutionReport = (obj: unknown): ExecutionReport => {
     lambdaLogger.info('Validating report');
-    const { error, value } = executionReportSchema.validate(obj, { allowUnknown: true });
+    const { error, value } = executionReportSchema.validate(obj, {
+        allowUnknown: true,
+    });
 
     if (error) {
         lambdaLogger.debug('Error validating cucumber report', { error });

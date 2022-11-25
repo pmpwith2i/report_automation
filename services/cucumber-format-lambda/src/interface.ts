@@ -33,7 +33,11 @@ export interface CucumberFeature {
         steps: {
             keyword: string;
             name: string;
-            result: { status: 'passed' | 'failed'; error_message: string; duration: number };
+            result: {
+                status: 'passed' | 'failed';
+                error_message: string;
+                duration: number;
+            };
             embeddings: { data: string; mime_type: string }[];
         }[];
     }[];
