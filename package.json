@@ -20,7 +20,6 @@
   "devDependencies": {
     "@packages/eslint-config-custom": "*",
     "@types/mysql": "^2.15.21",
-    "changeset": "^0.2.6",
     "esbuild": "^0.15.14",
     "prettier": "latest",
     "tsconfig-paths": "^4.1.0",
@@ -47,6 +46,6 @@
   },
   "packageManager": "npm@8.19.1",
   "dependencies": {
-    "@changesets/cli": "^2.25.2"
+    "beachball": "^2.31.5"
   }
 }
