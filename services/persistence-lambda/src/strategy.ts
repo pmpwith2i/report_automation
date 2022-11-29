@@ -33,25 +33,35 @@ const persistTests = (report: ReportExecution, connection: PoolConnection) => {
     ]);
 };
 
-const persistResults = (report: ReportExecution, connection: PoolConnection) => {
-    const insertExecutionsSql =
-        'INSERT INTO executions_results (execution_id, test_id, result, step, stacktrace, screenshot) VALUES ? ON DUPLICATE KEY UPDATE result = VALUES(result), step = VALUES(step), stacktrace = VALUES(stacktrace), screenshot = VALUES(screenshot)';
-    const results = [
+// TODO: TBD Description value
+const persistPassedResults = (report: ReportExecution, connection: PoolConnection) => {
+    const insertPassedExecutionsSql =
+        'INSERT INTO executions_results (execution_id, test_id, result, description) VALUES ? ON DUPLICATE KEY UPDATE result = VALUES(result), description = VALUES(description)';
+    const passedResults = [
         report.features
             .map((feature) =>
-                feature.results.map((result) => [
-                    `${report.execution.environment}_${report.execution.timestamp}`,
-                    result.test.id,
-                    result.status,
-                    result.failure?.step,
-                    result.failure?.stacktrace,
-                    result.failure?.screenshot,
-                ]),
+                feature.results
+                    .filter((result) => result.status)
+                    .map((result) => [`${report.execution.environment}_${report.execution.timestamp}`, result.test.id, result.status]),
             )
             .flat(),
     ];
-    lambdaLogger.info('Persisting results', { results });
-    return execQueryPromise(connection, insertExecutionsSql, results);
+    return execQueryPromise(connection, insertPassedExecutionsSql, passedResults);
+};
+
+const persistFailedResults = (report: ReportExecution, connection: PoolConnection) => {
+    const insertFailedExecutionsSql =
+        'INSERT INTO (executions_tests_failures execution_test, step, stacktrace, screenshot, description) VALUES ? ON DUPLICATE KEY UPDATE step = VALUES(step), stacktrace = VALUES(stacktrace), screenshot = VALUES(screenshot), description = VALUES(description)';
+    const failedResults = [
+        report.features
+            .map((feature) =>
+                feature.results
+                    .filter((result) => !result.status)
+                    .map((result) => [`${report.execution.environment}_${report.execution.timestamp}`, result.test.id, result.status]),
+            )
+            .flat(),
+    ];
+    return execQueryPromise(connection, insertFailedExecutionsSql, failedResults);
 };
 
 export const persistReportToDb = (report: ReportExecution) => {
@@ -74,7 +84,8 @@ export const persistReportToDb = (report: ReportExecution) => {
                     persistEpics(report, connection),
                     persistStories(report, connection),
                     persistTests(report, connection),
-                    persistResults(report, connection),
+                    persistPassedResults(report, connection),
+                    persistFailedResults(report, connection),
                 ])
                     .then(() => {
                         connection.commit((err) => {
