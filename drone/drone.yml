@@ -3,9 +3,13 @@ type: docker
 name: automation_poc_pipeline
 
 trigger:
+  branch:
+  - develop
+  - master
   event:
   - pull_request
   - tag
+  - push
 
 platform:
   os: linux
@@ -28,7 +32,46 @@ steps:
   commands: 
   - npx turbo run lint test
 
-- name : AWS CDK Deploy
+- name : DEV - AWS CDK Deploy
+  image: node:16
+  when:
+    branch:
+    - develop
+    event:
+    - push
+
+  environment:
+    CDK_AWS_ACCOUNT_ID:
+      from_secret: CDK_AWS_ACCOUNT_ID
+    CDK_AWS_REGION: us-west-2
+    CDK_VPC_ID:
+      from_secret: CDK_VPC_ID
+    CDK_STORAGE_PREFIX_CUCUMBER: /cucumber
+    DB_HOST:
+      from_secret: DB_HOST
+    DB_PORT: 3306
+    DB_USERNAME: admin
+    DB_PASSWORD:
+      from_secret: DB_PASSWORD
+    DB_NAME: qa_reports
+    PERSISTENCE_LAMBDA_TIMEOUT: 30
+    FORMAT_LAMBDA_TIMEOUT: 60
+    SCREENSHOT_BUCKET_NAME: qa-report-poc-federico-screenshots
+    AWS_ACCESS_KEY_ID:
+      from_secret: AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: AWS_SECRET_ACCESS_KEY
+    AWS_DEFAULT_REGION:
+      from_secret: AWS_DEFAULT_REGION
+
+  commands: 
+  - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+  - export AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+  - npm run cdk:diff
+  - npm run deploy
+
+- name : PROD - AWS CDK Deploy
   image: node:16
   when:
     ref:
