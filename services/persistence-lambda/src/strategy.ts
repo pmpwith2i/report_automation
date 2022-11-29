@@ -49,15 +49,21 @@ const persistPassedResults = (report: ReportExecution, connection: PoolConnectio
     return execQueryPromise(connection, insertPassedExecutionsSql, passedResults);
 };
 
+// TODO: TBD Description value
 const persistFailedResults = (report: ReportExecution, connection: PoolConnection) => {
     const insertFailedExecutionsSql =
-        'INSERT INTO (executions_tests_failures execution_test, step, stacktrace, screenshot, description) VALUES ? ON DUPLICATE KEY UPDATE step = VALUES(step), stacktrace = VALUES(stacktrace), screenshot = VALUES(screenshot), description = VALUES(description)';
+        'INSERT INTO executions_tests_failures (execution_test, step, stacktrace, screenshot, description) VALUES ? ON DUPLICATE KEY UPDATE step = VALUES(step), stacktrace = VALUES(stacktrace), screenshot = VALUES(screenshot), description = VALUES(description)';
     const failedResults = [
         report.features
             .map((feature) =>
                 feature.results
                     .filter((result) => !result.status)
-                    .map((result) => [`${report.execution.environment}_${report.execution.timestamp}`, result.test.id, result.status]),
+                    .map((result) => [
+                        `${report.execution.environment}_${report.execution.timestamp}_${result.test.id}`,
+                        result.failure?.step,
+                        result.failure?.stacktrace,
+                        result.failure?.screenshot,
+                    ]),
             )
             .flat(),
     ];
