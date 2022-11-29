@@ -32,7 +32,7 @@ steps:
   commands: 
   - npx turbo run lint test
 
-- name : [DEV] AWS CDK Deploy
+- name : DEV - AWS CDK Deploy
   image: node:16
   when:
     branch:
@@ -71,7 +71,7 @@ steps:
   - npm run cdk:diff
   - npm run deploy
 
-- name : [PROD] AWS CDK Deploy
+- name : PROD - AWS CDK Deploy
   image: node:16
   when:
     ref:
