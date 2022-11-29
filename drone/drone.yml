@@ -32,7 +32,6 @@ steps:
   commands: 
   - npx turbo run lint test
 
-
 - name : [DEV] AWS CDK Deploy
   image: node:16
   when:
