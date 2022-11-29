@@ -3,6 +3,8 @@ type: docker
 name: automation_poc_pipeline
 
 trigger:
+  branch:
+  - develop
   event:
   - pull_request
   - tag
