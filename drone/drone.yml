@@ -5,9 +5,11 @@ name: automation_poc_pipeline
 trigger:
   branch:
   - develop
+  - master
   event:
   - pull_request
   - tag
+  - push
 
 platform:
   os: linux
