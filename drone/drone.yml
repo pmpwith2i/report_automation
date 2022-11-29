@@ -33,6 +33,8 @@ steps:
   when:
     ref:
     - refs/tags/*
+    branch:
+    - develop
 
   environment:
     CDK_AWS_ACCOUNT_ID:
