@@ -34,19 +34,15 @@ const persistTests = (report: ReportExecution, connection: PoolConnection) => {
 };
 
 // TODO: TBD Description value
-const persistPassedResults = (report: ReportExecution, connection: PoolConnection) => {
-    const insertPassedExecutionsSql =
+const persistResults = (report: ReportExecution, connection: PoolConnection) => {
+    const insertExecutionsSql =
         'INSERT INTO executions_results (execution_id, test_id, result, description) VALUES ? ON DUPLICATE KEY UPDATE result = VALUES(result), description = VALUES(description)';
-    const passedResults = [
+    const results = [
         report.features
-            .map((feature) =>
-                feature.results
-                    .filter((result) => result.status)
-                    .map((result) => [`${report.execution.environment}_${report.execution.timestamp}`, result.test.id, result.status]),
-            )
+            .map((feature) => feature.results.map((result) => [`${report.execution.environment}_${report.execution.timestamp}`, result.test.id, result.status]))
             .flat(),
     ];
-    return execQueryPromise(connection, insertPassedExecutionsSql, passedResults);
+    return execQueryPromise(connection, insertExecutionsSql, results);
 };
 
 // TODO: TBD Description value
@@ -90,7 +86,7 @@ export const persistReportToDb = (report: ReportExecution) => {
                     persistEpics(report, connection),
                     persistStories(report, connection),
                     persistTests(report, connection),
-                    persistPassedResults(report, connection),
+                    persistResults(report, connection),
                     persistFailedResults(report, connection),
                 ])
                     .then(() => {
