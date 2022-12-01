@@ -22,5 +22,5 @@ export const getReportFromBucket = async ({ bucketName, key }: GetReportFromBuck
 
 export const saveScreenshot = async (image: SaveScreenshot): Promise<void> => {
     lambdaLogger.info('Processing image', { image });
-    await writeFilePromise(`./${SCREENSHOT_PATH}/${image.key}.png`, image.body, image.contentEnconding);
+    await writeFilePromise(`./${SCREENSHOT_PATH}/${image.key}`, image.body, image.contentEnconding);
 };
