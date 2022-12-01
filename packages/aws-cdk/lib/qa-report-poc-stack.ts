@@ -23,9 +23,6 @@ export class QAReportPocStack extends cdk.Stack {
         });
 
         const reportBucket = Bucket.fromBucketName(this, 'ReportBucket', 'qa-federico-report-poc-bucket');
-        const screenshotBucket = new Bucket(this, 'ScreenshotBucket', {
-            bucketName: props?.screenshotPath,
-        });
 
         const qaReportQueue = new Queue(this, 'QAReportPocQueue', {
             visibilityTimeout: Duration.seconds(30), // default,
@@ -42,7 +39,7 @@ export class QAReportPocStack extends cdk.Stack {
             architecture: Architecture.ARM_64,
             environment: {
                 SNS_QUEUE_URL: qaReportQueue.queueUrl,
-                SCREENSHOT_PATH: screenshotBucket.bucketName,
+                SCREENSHOT_PATH: props.screenshotPath,
             },
             timeout: Duration.seconds(props.formatLambdaTimeout),
             vpc,
@@ -73,7 +70,5 @@ export class QAReportPocStack extends cdk.Stack {
             prefix: props.cucumberPrefix,
         });
         reportBucket.grantRead(cucumberFormatLambda);
-        screenshotBucket.grantPut(cucumberFormatLambda);
-        screenshotBucket.grantWrite(cucumberFormatLambda);
     }
 }
