@@ -1,8 +1,22 @@
 import lambdaLogger from '@packages/lambda-logger/src/lambda-logger';
 import { KEYWORD_AFTER, MIMETYPE_IMAGE_PNG, STATUS_FAILED } from './constants';
 import { CucumberFeature, ExecutionReport, Feature, FeatureElement, FeatureResult, FinalReport, StoryReportElement, TestReportElement } from 'interface';
-import { putScreenshotIntoBucket } from 'strategy';
+import { saveScreenshot } from 'strategy';
+import { createWriteStream } from 'fs';
 export class S3Error extends Error {}
+
+export const writeFilePromise = (path: string, data: Buffer, contentEnconding: BufferEncoding): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        lambdaLogger.info('Saving file to File System', { path });
+        const stream = createWriteStream(path, contentEnconding);
+        stream.write(data, (err) => {
+            if (err) return reject(err);
+            stream.end();
+            lambdaLogger.info('File saved to File System', { path });
+            resolve();
+        });
+    });
+};
 
 const getResults = (obj: CucumberFeature, executionEnvironment: string, executionTimestamp: string): Feature => {
     const results: FeatureResult[] = [];
@@ -47,7 +61,7 @@ const getResults = (obj: CucumberFeature, executionEnvironment: string, executio
                     const imageScreenshot = step.embeddings.find((embedding) => embedding.mime_type === MIMETYPE_IMAGE_PNG);
                     if (imageScreenshot) {
                         screenshot = `${executionEnvironment}_ ${executionTimestamp}_${test.id}`;
-                        putScreenshotIntoBucket({
+                        saveScreenshot({
                             key: `screenshots/${screenshot}.png`,
                             body: Buffer.from(imageScreenshot.data, 'base64'),
                             contentType: imageScreenshot.mime_type,

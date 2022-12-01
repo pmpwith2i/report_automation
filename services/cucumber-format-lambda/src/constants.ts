@@ -7,4 +7,4 @@ export const STATUS_FAILED = 'failed';
 export const KEYWORD_AFTER = 'After';
 export const MIMETYPE_IMAGE_PNG = 'image/png';
 
-export const SCREENSHOT_BUCKET_NAME = process.env.SCREENSHOT_BUCKET_NAME ?? 'qa-federico-report-poc-bucket';
+export const SCREENSHOT_PATH = process.env.SCREENSHOT_PATH ?? 'screenshot-qa-automation';

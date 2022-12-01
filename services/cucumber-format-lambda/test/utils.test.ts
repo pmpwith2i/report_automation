@@ -4,11 +4,14 @@ import * as chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { FinalReport } from 'interface';
 
+import sinon from 'sinon';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 import cucumberReports from '../source/cucumberreport.json';
 import { formatExecutionReport } from 'utils';
+
+import * as strategy from '../src/strategy';
 
 describe('utils tests', () => {
     describe('when formatCucumberFeatures is invoked', () => {
@@ -17,6 +20,7 @@ describe('utils tests', () => {
 
             before(() => {
                 const reportExecution = validateExecutionReport(cucumberReports);
+                sinon.stub(strategy, 'saveScreenshot').resolves();
                 res = formatExecutionReport(reportExecution);
             });
 

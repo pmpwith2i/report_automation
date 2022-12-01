@@ -56,7 +56,7 @@ steps:
     DB_NAME: qa_reports
     PERSISTENCE_LAMBDA_TIMEOUT: 30
     FORMAT_LAMBDA_TIMEOUT: 60
-    SCREENSHOT_BUCKET_NAME: qa-report-poc-federico-screenshots
+    SCREENSHOT_PATH: qa-report-poc-federico-screenshots
     AWS_ACCESS_KEY_ID:
       from_secret: AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY:
@@ -93,7 +93,7 @@ steps:
     DB_NAME: qa_reports
     PERSISTENCE_LAMBDA_TIMEOUT: 30
     FORMAT_LAMBDA_TIMEOUT: 60
-    SCREENSHOT_BUCKET_NAME: qa-report-poc-federico-screenshots
+    SCREENSHOT_PATH: qa-report-poc-federico-screenshots
     AWS_ACCESS_KEY_ID:
       from_secret: AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY:

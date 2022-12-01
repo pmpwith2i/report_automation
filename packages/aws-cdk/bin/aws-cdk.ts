@@ -12,7 +12,7 @@ const props: QaReportStackProps = {
         region: process.env.CDK_AWS_REGION ?? '',
     },
     vpcId: process.env.CDK_VPC_ID ?? '',
-    screenshotBucketName: process.env.SCREENSHOT_BUCKET_NAME ?? '',
+    screenshotPath: process.env.SCREENSHOT_PATH ?? '',
     cucumberPrefix: process.env.CDK_STORAGE_CUCUMBER_PREFIX ?? 'cucumber/',
     dbHost: process.env.DB_HOST ?? '',
     dbPort: process.env.DB_PORT ?? '',

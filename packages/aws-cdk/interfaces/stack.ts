@@ -3,7 +3,7 @@ import { StackProps } from 'aws-cdk-lib';
 export interface QaReportStackProps extends StackProps {
     vpcId: string;
     cucumberPrefix: string;
-    screenshotBucketName: string;
+    screenshotPath: string;
     dbHost: string;
     dbPort: string;
     dbUsername: string;
