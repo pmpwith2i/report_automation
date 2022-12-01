@@ -9,8 +9,12 @@ export const writeFilePromise = (path: string, data: Buffer, contentEnconding: B
     return new Promise((resolve, reject) => {
         lambdaLogger.info('Saving file to File System', { path });
         const stream = createWriteStream(path, contentEnconding);
-        if (stream.write(data)) return resolve();
-        else return reject();
+        stream.write(data, (err) => {
+            if (err) return reject(err);
+            stream.end();
+            lambdaLogger.info('File saved to File System', { path });
+            resolve();
+        });
     });
 };
 
