@@ -24,7 +24,7 @@ export class QAReportPocStack extends cdk.Stack {
 
         const reportBucket = Bucket.fromBucketName(this, 'ReportBucket', 'qa-federico-report-poc-bucket');
         const screenshotBucket = new Bucket(this, 'ScreenshotBucket', {
-            bucketName: props?.screenshotBucketName,
+            bucketName: props?.screenshotPath,
         });
 
         const qaReportQueue = new Queue(this, 'QAReportPocQueue', {
@@ -42,7 +42,7 @@ export class QAReportPocStack extends cdk.Stack {
             architecture: Architecture.ARM_64,
             environment: {
                 SNS_QUEUE_URL: qaReportQueue.queueUrl,
-                SCREENSHOT_BUCKET_NAME: screenshotBucket.bucketName,
+                SCREENSHOT_PATH: screenshotBucket.bucketName,
             },
             timeout: Duration.seconds(props.formatLambdaTimeout),
             vpc,

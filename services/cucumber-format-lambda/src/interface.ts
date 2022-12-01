@@ -3,11 +3,11 @@ export interface GetReportFromBucket {
     key: string;
 }
 
-export interface PutScreenshotIntoBucket {
+export interface SaveScreenshot {
     key: string;
     body: Buffer;
     contentType: string;
-    contentEnconding: string;
+    contentEnconding: BufferEncoding;
 }
 
 export interface ExecutionReport {
